@@ -8,9 +8,22 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import Image from "next/image";
 import logo from "@/assets/MomentumX_Logo.png";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const { user } = useAuth();
+  const pathname = usePathname();
+  const linkClass = (href: string) => {
+    const active =
+      href === "/problems/new" ? pathname === href : pathname?.startsWith(href);
+    return cn(
+      "transition-colors",
+      active
+        ? "text-blue-500 font-semibold hover:text-blue-500"
+        : "text-muted-foreground hover:text-blue-300"
+    );
+  };
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 flex h-14 items-center">
@@ -28,20 +41,20 @@ export function Navbar() {
             </span>
           </Link>
           <nav className="flex items-center gap-6 text-sm font-medium">
-            <Link
-              href="/discovery"
-              className="transition-colors hover:text-primary text-muted-foreground">
+            <Link href="/discovery" className={linkClass("/discovery")}>
               Discovery
             </Link>
-            <Link
-              href="/problems/new"
-              className="transition-colors hover:text-primary text-muted-foreground">
+            <Link href="/problems/new" className={linkClass("/problems/new")}>
               Submit Idea
             </Link>
-            <Link
-              href="/teams"
-              className="transition-colors hover:text-primary text-muted-foreground">
+            <Link href="/teams" className={linkClass("/teams")}>
               Teams
+            </Link>
+            <Link href="/notifications" className={linkClass("/notifications")}>
+              Notifications
+            </Link>
+            <Link href="/profile" className={linkClass("/profile")}>
+              Profile
             </Link>
           </nav>
         </div>

@@ -1,7 +1,9 @@
 "use client";
 
-import Image from "next/image";
+import { Avatar } from "@/components/atoms/avatar";
 import Link from "next/link";
+import { useAuth } from "@/components/auth-provider";
+import { useProblemsStore } from "@/store/problems-store";
 import { Heart, Users } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
@@ -19,6 +21,9 @@ interface ProblemCardProps {
 }
 
 export function ProblemCard({ problem }: ProblemCardProps) {
+  const { user } = useAuth();
+  const { pendingCountForProblem } = useProblemsStore();
+  const pending = pendingCountForProblem(problem.id);
   const totalRoles = problem.requiredRoles.reduce((acc, r) => acc + r.count, 0);
   const filledRoles = problem.requiredRoles.reduce(
     (acc, r) => acc + r.filled,
@@ -50,6 +55,13 @@ export function ProblemCard({ problem }: ProblemCardProps) {
             }>
             {problem.stage}
           </Badge>
+          {((user?.email && problem.author.name.includes(user.email)) ||
+            problem.author.name === "You") &&
+            pending > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                Requests: {pending}
+              </Badge>
+            )}
         </div>
         <p className="line-clamp-2 text-sm text-muted-foreground">
           {problem.tagline}
@@ -88,14 +100,14 @@ export function ProblemCard({ problem }: ProblemCardProps) {
       <CardFooter className="border-t bg-muted/20 p-4">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Image
+            <Avatar
+              name={problem.author.name}
               src={problem.author.avatar}
-              alt={problem.author.name}
-              width={24}
-              height={24}
-              className="rounded-full"
+              size={24}
             />
-            <span className="line-clamp-1 max-w-[100px]">{problem.author.name}</span>
+            <span className="line-clamp-1 max-w-[100px]">
+              {problem.author.name}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Button

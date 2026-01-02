@@ -1,23 +1,37 @@
-"use client"
+"use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules/card";
-import { MOCK_PROBLEMS } from "@/lib/mock-data";
-import { Heart, Users } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/molecules/card";
+import { Heart, Users, CalendarDays } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import Link from "next/link";
+import { Avatar } from "@/components/atoms/avatar";
+import { useToast } from "@/components/toast-provider";
+import { formatDate } from "@/lib/utils";
+import { useProblemsStore } from "@/store/problems-store";
 
 export default function ProblemDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const { show } = useToast();
+  const { addJoinRequest, problems, init } = useProblemsStore();
+
+  useEffect(() => {
+    init();
+  }, [init]);
 
   const problem = useMemo(
-    () => MOCK_PROBLEMS.find((p) => p.id === String(params.id)),
-    [params.id]
+    () => problems.find((p) => p.id === String(params.id)),
+    [params.id, problems]
   );
 
   if (!problem) {
@@ -45,7 +59,11 @@ export default function ProblemDetailPage() {
       router.push("/auth/sign-in");
       return;
     }
-    alert("Request to join sent to team lead.");
+    addJoinRequest(problem.id, {
+      name: user.displayName || user.email || "User",
+      email: user.email || "",
+    });
+    show("Request to join sent to team lead.", "success");
   };
 
   return (
@@ -67,6 +85,21 @@ export default function ProblemDetailPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">{problem.description}</p>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <Avatar
+              name={problem.author.name}
+              src={problem.author.avatar}
+              size={28}
+            />
+            <span>By {problem.author.name}</span>
+            <span className="flex items-center gap-1">
+              <CalendarDays className="h-4 w-4" />{" "}
+              {formatDate(problem.createdAt)}
+            </span>
+            <span className="flex items-center gap-1">
+              <Heart className="h-4 w-4" /> {problem.likes}
+            </span>
+          </div>
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <Users className="h-4 w-4" /> Team Progress
@@ -92,7 +125,15 @@ export default function ProblemDetailPage() {
       </Card>
 
       <div className="flex items-center gap-3">
-        <Button onClick={handleJoin}>Request to Join</Button>
+        {user?.email &&
+        (problem.author.email === user.email ||
+          problem.author.name === (user.displayName || "")) ? (
+          <Button variant="default" asChild>
+            <Link href={`/notifications`}>Manage Requests</Link>
+          </Button>
+        ) : (
+          <Button onClick={handleJoin}>Request to Join</Button>
+        )}
         <Button variant="outline" asChild>
           <Link href={`/teams/${problem.id}`}>View Team</Link>
         </Button>

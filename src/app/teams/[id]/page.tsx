@@ -12,9 +12,11 @@ import {
   CardTitle,
 } from "@/components/molecules/card";
 import { MOCK_PROBLEMS } from "@/lib/mock-data";
+import { useToast } from "@/components/toast-provider";
 
 export default function TeamDetailPage() {
   const params = useParams<{ id: string }>();
+  const { show } = useToast();
 
   const problem = useMemo(
     () => MOCK_PROBLEMS.find((p) => p.id === String(params.id)),
@@ -102,7 +104,7 @@ export default function TeamDetailPage() {
           <CardContent className="space-y-3">
             <Button
               className="w-full"
-              onClick={() => alert("Request to join sent")}>
+              onClick={() => show("Request to join sent", "success")}>
               Request to Join
             </Button>
             <Button variant="outline" className="w-full" asChild>

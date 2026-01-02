@@ -7,7 +7,8 @@ export interface Problem {
   stage: 'Draft' | 'Team Formation' | 'Building' | 'MVP';
   author: {
     name: string;
-    avatar: string;
+    avatar?: string;
+    email?: string;
   };
   requiredRoles: { role: string; count: number; filled: number }[];
   likes: number;

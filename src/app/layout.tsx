@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/organisms/navbar";
 import { AuthProvider } from "@/components/auth-provider";
 import logo from "@/assets/MomentumX_Logo.png";
+import { ToastProvider } from "@/components/toast-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,10 +35,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <AuthProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-            </div>
+            <ToastProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <Navbar />
+                <main className="flex-1 overflow-hidden">{children}</main>
+              </div>
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
