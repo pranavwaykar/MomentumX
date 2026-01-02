@@ -72,7 +72,11 @@ export default function ProblemDetailPage() {
   return (
     <div className="container mx-auto px-4 py-10 space-y-8">
       <div className="flex items-center">
-        <Button className="text-base cursor-pointer" variant="ghost"  size="sm" onClick={() => router.back()}>
+        <Button
+          className="text-base cursor-pointer"
+          variant="ghost"
+          size="sm"
+          onClick={() => router.back()}>
           ← Back
         </Button>
       </div>

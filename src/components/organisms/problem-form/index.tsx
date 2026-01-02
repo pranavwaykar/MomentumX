@@ -90,7 +90,7 @@ export function ProblemForm() {
                     domain: formData.domain || "General",
                     author: {
                       name: user.displayName || user.email || "You",
-                      avatar: photoUrl || user.photoURL,
+                      avatar: photoUrl ?? user.photoURL ?? undefined,
                       email: user.email || undefined,
                     },
                     requiredRoles: formData.roles.map((r) => ({

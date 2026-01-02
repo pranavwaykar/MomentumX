@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { create } from "zustand";
 import { MOCK_PROBLEMS, type Problem } from "@/lib/mock-data";
@@ -17,8 +17,14 @@ interface ProblemsState {
   problems: Problem[];
   joinRequests: JoinRequest[];
   init: () => void;
-  addProblem: (p: Omit<Problem, "id" | "likes" | "stage" | "createdAt">) => Problem;
-  addJoinRequest: (problemId: string, user: { name: string; email: string }, role?: string) => JoinRequest;
+  addProblem: (
+    p: Omit<Problem, "id" | "likes" | "stage" | "createdAt">
+  ) => Problem;
+  addJoinRequest: (
+    problemId: string,
+    user: { name: string; email: string },
+    role?: string
+  ) => JoinRequest;
   acceptRequest: (requestId: string) => void;
   rejectRequest: (requestId: string) => void;
   pendingCountForProblem: (problemId: string) => number;
@@ -48,7 +54,36 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
   init: () => {
     const existing = typeof window !== "undefined" ? load() : null;
     if (existing) {
-      set({ problems: existing.problems, joinRequests: existing.joinRequests });
+      // one-time avatar migration for Bob/Diana if old pravatar URLs are present
+      const migratedProblems = existing.problems.map((p) => {
+        if (
+          p.author?.name === "Bob Smith" &&
+          (p.author.avatar || "").includes("i.pravatar.cc")
+        ) {
+          return {
+            ...p,
+            author: {
+              ...p.author,
+              avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+            },
+          };
+        }
+        if (
+          p.author?.name === "Diana Prince" &&
+          (p.author.avatar || "").includes("i.pravatar.cc")
+        ) {
+          return {
+            ...p,
+            author: {
+              ...p.author,
+              avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+            },
+          };
+        }
+        return p;
+      });
+      set({ problems: migratedProblems, joinRequests: existing.joinRequests });
+      save({ problems: migratedProblems, joinRequests: existing.joinRequests });
     } else {
       set({ problems: MOCK_PROBLEMS.slice(), joinRequests: [] });
       save({ problems: MOCK_PROBLEMS.slice(), joinRequests: [] });
@@ -85,7 +120,7 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
   acceptRequest: (requestId) => {
     const req = get().joinRequests.find((r) => r.id === requestId);
     if (!req) return;
-    const nextReqs = get().joinRequests.map((r) =>
+    const nextReqs: JoinRequest[] = get().joinRequests.map((r) =>
       r.id === requestId ? { ...r, status: "accepted" } : r
     );
     // Increment filled count for the first open role or matching role
@@ -104,13 +139,14 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
     save({ problems, joinRequests: nextReqs });
   },
   rejectRequest: (requestId) => {
-    const nextReqs = get().joinRequests.map((r) =>
+    const nextReqs: JoinRequest[] = get().joinRequests.map((r) =>
       r.id === requestId ? { ...r, status: "rejected" } : r
     );
     set({ joinRequests: nextReqs });
     save({ problems: get().problems, joinRequests: nextReqs });
   },
   pendingCountForProblem: (problemId) =>
-    get().joinRequests.filter((r) => r.problemId === problemId && r.status === "pending").length,
+    get().joinRequests.filter(
+      (r) => r.problemId === problemId && r.status === "pending"
+    ).length,
 }));
-
