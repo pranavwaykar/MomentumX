@@ -17,6 +17,7 @@ import { Avatar } from "@/components/atoms/avatar";
 import { useToast } from "@/components/toast-provider";
 import { formatDate } from "@/lib/utils";
 import { useProblemsStore } from "@/store/problems-store";
+import { useProfileStore } from "@/store/profile-store";
 
 export default function ProblemDetailPage() {
   const params = useParams<{ id: string }>();
@@ -24,10 +25,12 @@ export default function ProblemDetailPage() {
   const { user } = useAuth();
   const { show } = useToast();
   const { addJoinRequest, problems, init } = useProblemsStore();
+  const { photoUrl, name, init: initProfile } = useProfileStore();
 
   useEffect(() => {
     init();
-  }, [init]);
+    initProfile();
+  }, [init, initProfile]);
 
   const problem = useMemo(
     () => problems.find((p) => p.id === String(params.id)),
@@ -68,6 +71,11 @@ export default function ProblemDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 space-y-8">
+      <div className="flex items-center">
+        <Button className="text-base cursor-pointer" variant="ghost"  size="sm" onClick={() => router.back()}>
+          ← Back
+        </Button>
+      </div>
       <div className="flex items-start justify-between gap-4">
         <div>
           <Badge variant="outline" className="mb-2">
@@ -87,11 +95,24 @@ export default function ProblemDetailPage() {
           <p className="text-muted-foreground">{problem.description}</p>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Avatar
-              name={problem.author.name}
-              src={problem.author.avatar}
+              name={
+                user?.email && problem.author.email === user.email && name
+                  ? name
+                  : problem.author.name
+              }
+              src={
+                user?.email && problem.author.email === user.email && photoUrl
+                  ? photoUrl
+                  : problem.author.avatar
+              }
               size={28}
             />
-            <span>By {problem.author.name}</span>
+            <span>
+              By{" "}
+              {user?.email && problem.author.email === user.email && name
+                ? name
+                : problem.author.name}
+            </span>
             <span className="flex items-center gap-1">
               <CalendarDays className="h-4 w-4" />{" "}
               {formatDate(problem.createdAt)}

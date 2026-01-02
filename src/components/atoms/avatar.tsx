@@ -37,6 +37,18 @@ export function Avatar({
   className?: string;
 }) {
   if (src) {
+    const isInline = src.startsWith("blob:") || src.startsWith("data:");
+    if (isInline) {
+      return (
+        <img
+          src={src}
+          alt={name}
+          width={size}
+          height={size}
+          className={`rounded-full ${className || ""}`}
+        />
+      );
+    }
     return (
       <Image
         src={src}

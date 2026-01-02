@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar } from "@/components/atoms/avatar";
+import { useProfileStore } from "@/store/profile-store";
 import Link from "next/link";
 import { useAuth } from "@/components/auth-provider";
 import { useProblemsStore } from "@/store/problems-store";
@@ -23,6 +24,7 @@ interface ProblemCardProps {
 export function ProblemCard({ problem }: ProblemCardProps) {
   const { user } = useAuth();
   const { pendingCountForProblem } = useProblemsStore();
+  const { photoUrl, name } = useProfileStore();
   const pending = pendingCountForProblem(problem.id);
   const totalRoles = problem.requiredRoles.reduce((acc, r) => acc + r.count, 0);
   const filledRoles = problem.requiredRoles.reduce(
@@ -100,14 +102,26 @@ export function ProblemCard({ problem }: ProblemCardProps) {
       <CardFooter className="border-t bg-muted/20 p-4">
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Avatar
-              name={problem.author.name}
-              src={problem.author.avatar}
-              size={24}
-            />
-            <span className="line-clamp-1 max-w-[100px]">
-              {problem.author.name}
-            </span>
+            {(() => {
+              const isAuthor =
+                !!user?.email &&
+                ((problem.author.email &&
+                  problem.author.email === user.email) ||
+                  (!!user.displayName &&
+                    problem.author.name === user.displayName) ||
+                  (!!user.email && problem.author.name?.includes(user.email)));
+              const displayName = isAuthor && name ? name : problem.author.name;
+              const displayPhoto =
+                isAuthor && photoUrl ? photoUrl : problem.author.avatar;
+              return (
+                <>
+                  <Avatar name={displayName} src={displayPhoto} size={24} />
+                  <span className="line-clamp-1 max-w-[120px]">
+                    {displayName}
+                  </span>
+                </>
+              );
+            })()}
           </div>
           <div className="flex items-center gap-2">
             <Button
