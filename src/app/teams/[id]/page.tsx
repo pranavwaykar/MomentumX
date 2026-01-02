@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
@@ -60,6 +60,20 @@ export default function TeamDetailPage() {
         <Badge className="bg-muted text-foreground">{problem.stage}</Badge>
       </div>
 
+      <div className="grid gap-3 md:grid-cols-4">
+        {["Draft", "Team Formation", "Building", "MVP"].map((stage) => (
+          <div
+            key={stage}
+            className={`rounded-md border p-3 text-sm ${
+              stage === problem.stage
+                ? "bg-primary/10 border-primary"
+                : "bg-muted"
+            }`}>
+            {stage}
+          </div>
+        ))}
+      </div>
+
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="md:col-span-2">
           <CardHeader>
@@ -86,7 +100,9 @@ export default function TeamDetailPage() {
             <CardTitle>Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full" onClick={() => alert("Request to join sent")}>
+            <Button
+              className="w-full"
+              onClick={() => alert("Request to join sent")}>
               Request to Join
             </Button>
             <Button variant="outline" className="w-full" asChild>
@@ -110,8 +126,7 @@ export default function TeamDetailPage() {
             {filledMembers.map((m, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between text-sm border-b last:border-none py-2"
-              >
+                className="flex items-center justify-between text-sm border-b last:border-none py-2">
                 <span>{m.role}</span>
                 <Badge variant="secondary">{m.count}</Badge>
               </div>
@@ -130,8 +145,7 @@ export default function TeamDetailPage() {
             {openRoles.map((r, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between text-sm border-b last:border-none py-2"
-              >
+                className="flex items-center justify-between text-sm border-b last:border-none py-2">
                 <span>{r.role}</span>
                 <Badge variant="secondary">{r.open} open</Badge>
               </div>

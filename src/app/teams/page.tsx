@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Users } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
@@ -10,8 +12,12 @@ import {
   CardFooter,
 } from "@/components/molecules/card";
 import { MOCK_PROBLEMS } from "@/lib/mock-data";
+import { useState } from "react";
 
 export default function TeamsPage() {
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
+  const [selectedStage, setSelectedStage] = useState<string | null>(null);
+
   const teams = MOCK_PROBLEMS.map((p) => {
     const total = p.requiredRoles.reduce((a, r) => a + r.count, 0);
     const filled = p.requiredRoles.reduce((a, r) => a + r.filled, 0);
@@ -27,7 +33,10 @@ export default function TeamsPage() {
       openRoles,
       tagline: p.tagline,
     };
-  }).filter((t) => t.teamSize > 0);
+  })
+    .filter((t) => t.teamSize > 0)
+    .filter((t) => (selectedDomain ? t.domain === selectedDomain : true))
+    .filter((t) => (selectedStage ? t.stage === selectedStage : true));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -36,6 +45,35 @@ export default function TeamsPage() {
         <p className="text-muted-foreground">
           Find a team to join or manage your existing teams.
         </p>
+      </div>
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Badge
+          variant={selectedDomain === null ? "default" : "outline"}
+          className="cursor-pointer"
+          onClick={() => setSelectedDomain(null)}>
+          All Domains
+        </Badge>
+        {Array.from(new Set(MOCK_PROBLEMS.map((p) => p.domain))).map((d) => (
+          <Badge
+            key={d}
+            variant={selectedDomain === d ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() => setSelectedDomain(selectedDomain === d ? null : d)}>
+            {d}
+          </Badge>
+        ))}
+        {["Draft", "Team Formation", "Building", "MVP"].map((stage) => (
+          <Badge
+            key={stage}
+            variant={selectedStage === stage ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() =>
+              setSelectedStage(selectedStage === stage ? null : stage)
+            }>
+            {stage}
+          </Badge>
+        ))}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

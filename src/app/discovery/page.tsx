@@ -11,6 +11,8 @@ import { MOCK_PROBLEMS } from "@/lib/mock-data"
 export default function DiscoveryPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null)
+  const [selectedStage, setSelectedStage] = useState<string | null>(null)
+  const [sortByLikes, setSortByLikes] = useState<boolean>(false)
 
   const domains = Array.from(new Set(MOCK_PROBLEMS.map((p) => p.domain)))
 
@@ -19,8 +21,12 @@ export default function DiscoveryPage() {
       problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       problem.description.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesDomain = selectedDomain ? problem.domain === selectedDomain : true
-    return matchesSearch && matchesDomain
+    const matchesStage = selectedStage ? problem.stage === selectedStage : true
+    return matchesSearch && matchesDomain && matchesStage
   })
+  const problems = sortByLikes
+    ? [...filteredProblems].sort((a, b) => b.likes - a.likes)
+    : filteredProblems
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -66,11 +72,28 @@ export default function DiscoveryPage() {
               {domain}
             </Badge>
           ))}
+          {["Draft", "Team Formation", "Building", "MVP"].map((stage) => (
+            <Badge
+              key={stage}
+              variant={selectedStage === stage ? "default" : "outline"}
+              className="cursor-pointer"
+              onClick={() => setSelectedStage(selectedStage === stage ? null : stage)}
+            >
+              {stage}
+            </Badge>
+          ))}
+          <Badge
+            variant={sortByLikes ? "default" : "outline"}
+            className="cursor-pointer"
+            onClick={() => setSortByLikes((v) => !v)}
+          >
+            Sort by Likes
+          </Badge>
         </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredProblems.map((problem) => (
+        {problems.map((problem) => (
           <ProblemCard key={problem.id} problem={problem} />
         ))}
       </div>

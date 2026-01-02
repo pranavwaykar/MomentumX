@@ -6,6 +6,8 @@ import { Button } from "@/components/atoms/button";
 import { useAuth } from "@/components/auth-provider";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import Image from "next/image";
+import logo from "@/assets/MomentumX_Logo.png";
 
 export function Navbar() {
   const { user } = useAuth();
@@ -14,6 +16,13 @@ export function Navbar() {
       <div className="container mx-auto px-4 flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
+            <Image
+              src={logo}
+              alt="MomentumX"
+              width={24}
+              height={24}
+              className="rounded-sm"
+            />
             <span className="hidden font-bold sm:inline-block text-lg tracking-tight">
               MomentumX
             </span>

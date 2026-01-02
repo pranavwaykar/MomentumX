@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Heart, Users } from "lucide-react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
@@ -104,7 +105,9 @@ export function ProblemCard({ problem }: ProblemCardProps) {
               <Heart className="h-4 w-4" />
               <span className="sr-only">Like</span>
             </Button>
-            <Button size="sm">View Details</Button>
+            <Button size="sm" asChild>
+              <Link href={`/discovery/${problem.id}`}>View Details</Link>
+            </Button>
           </div>
         </div>
       </CardFooter>
