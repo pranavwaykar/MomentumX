@@ -1,0 +1,64 @@
+"use client";
+
+import Link from "next/link";
+import { ThemeToggle } from "@/components/molecules/theme-toggle";
+import { Button } from "@/components/atoms/button";
+import { useAuth } from "@/components/auth-provider";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+
+export function Navbar() {
+  const { user } = useAuth();
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <span className="hidden font-bold sm:inline-block text-lg tracking-tight">
+              MomentumX
+            </span>
+          </Link>
+          <nav className="flex items-center gap-6 text-sm font-medium">
+            <Link
+              href="/discovery"
+              className="transition-colors hover:text-primary text-muted-foreground">
+              Discovery
+            </Link>
+            <Link
+              href="/problems/new"
+              className="transition-colors hover:text-primary text-muted-foreground">
+              Submit Idea
+            </Link>
+            <Link
+              href="/teams"
+              className="transition-colors hover:text-primary text-muted-foreground">
+              Teams
+            </Link>
+          </nav>
+        </div>
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="w-full flex-1 md:w-auto md:flex-none">
+            {/* Search or other items */}
+          </div>
+          <nav className="flex items-center gap-2">
+            <ThemeToggle />
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  {user.email}
+                </span>
+                <Button size="sm" onClick={() => signOut(auth)}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" asChild>
+                <Link href="/auth/sign-in">Sign In</Link>
+              </Button>
+            )}
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
+}
