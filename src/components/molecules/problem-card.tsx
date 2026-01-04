@@ -46,14 +46,14 @@ export function ProblemCard({ problem }: ProblemCardProps) {
             </CardTitle>
           </div>
           <Badge
-            className={
+            variant={
               problem.stage === "Team Formation"
-                ? "bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700/40"
+                ? "info"
                 : problem.stage === "Building"
-                ? "bg-amber-100 text-amber-700 border border-amber-300 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700/40"
+                ? "warning"
                 : problem.stage === "MVP"
-                ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700/40"
-                : "bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700/40"
+                ? "success"
+                : "secondary"
             }>
             {problem.stage}
           </Badge>

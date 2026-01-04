@@ -88,7 +88,18 @@ export default function ProblemDetailPage() {
           <h1 className="text-3xl font-bold tracking-tight">{problem.title}</h1>
           <p className="text-muted-foreground mt-2">{problem.tagline}</p>
         </div>
-        <Badge className="bg-muted text-foreground">{problem.stage}</Badge>
+        <Badge
+          variant={
+            problem.stage === "Team Formation"
+              ? "info"
+              : problem.stage === "Building"
+              ? "warning"
+              : problem.stage === "MVP"
+              ? "success"
+              : "secondary"
+          }>
+          {problem.stage}
+        </Badge>
       </div>
 
       <Card>

@@ -89,7 +89,16 @@ export default function TeamsPage() {
                     </Badge>
                     <CardTitle className="line-clamp-1">{team.name}</CardTitle>
                   </div>
-                  <Badge className="bg-muted text-foreground">
+                  <Badge
+                    variant={
+                      team.stage === "Team Formation"
+                        ? "info"
+                        : team.stage === "Building"
+                        ? "warning"
+                        : team.stage === "MVP"
+                        ? "success"
+                        : "secondary"
+                    }>
                     {team.stage}
                   </Badge>
                 </div>
