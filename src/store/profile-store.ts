@@ -8,8 +8,15 @@ interface ProfileState {
   email?: string;
   headline?: string;
   photoUrl?: string;
+  phone?: string;
+  location?: string;
   setProfile: (
-    p: Partial<Pick<ProfileState, "name" | "email" | "headline" | "photoUrl">>
+    p: Partial<
+      Pick<
+        ProfileState,
+        "name" | "email" | "headline" | "photoUrl" | "phone" | "location"
+      >
+    >
   ) => void;
   setPhotoUrl: (url?: string) => void;
   init: () => void;
@@ -22,6 +29,8 @@ export const useProfileStore = create<ProfileState>((set) => ({
   email: undefined,
   headline: undefined,
   photoUrl: undefined,
+  phone: undefined,
+  location: undefined,
   setProfile: (p) => {
     set(p);
     try {

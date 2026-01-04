@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, X } from "lucide-react";
 import { Input } from "@/components/atoms/input";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
@@ -12,7 +12,11 @@ export default function DiscoveryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
-  const [sortByLikes, setSortByLikes] = useState<boolean>(false);
+  const [sortChoice, setSortChoice] = useState<"newest" | "oldest" | "likes">(
+    "newest"
+  );
+  const [minMembers, setMinMembers] = useState<number>(0);
+  const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const { problems, init } = useProblemsStore();
   useEffect(() => {
     init();
@@ -31,11 +35,22 @@ export default function DiscoveryPage() {
       ? problem.domain === selectedDomain
       : true;
     const matchesStage = selectedStage ? problem.stage === selectedStage : true;
-    return matchesSearch && matchesDomain && matchesStage;
+    const totalRoles = problem.requiredRoles.reduce((a, r) => a + r.count, 0);
+    const matchesMembers = totalRoles >= minMembers;
+    return matchesSearch && matchesDomain && matchesStage && matchesMembers;
   });
-  const sortedProblems = sortByLikes
-    ? [...filteredProblems].sort((a, b) => b.likes - a.likes)
-    : filteredProblems;
+  const sortedProblems =
+    sortChoice === "likes"
+      ? [...filteredProblems].sort((a, b) => b.likes - a.likes)
+      : sortChoice === "oldest"
+      ? [...filteredProblems].sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      : [...filteredProblems].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -59,9 +74,77 @@ export default function DiscoveryPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
+            <div className="relative">
+              <Button
+                variant="outline"
+                size="icon"
+                className="cursor-pointer"
+                onClick={() => setFilterOpen((v) => !v)}>
+                <Filter className="h-4 w-4" />
+              </Button>
+              {filterOpen && (
+                <div className="absolute right-0 z-40 mt-2 w-64 rounded-md border bg-background p-3 shadow-md">
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold">Filters</span>
+                    <button
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={() => setFilterOpen(false)}>
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="mt-3 space-y-3 text-sm">
+                    <div className="space-y-1">
+                      <div className="font-medium">Sort</div>
+                      <div className="flex flex-col gap-1">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="sortChoice"
+                            checked={sortChoice === "newest"}
+                            onChange={() => setSortChoice("newest")}
+                          />
+                          Newest
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="sortChoice"
+                            checked={sortChoice === "oldest"}
+                            onChange={() => setSortChoice("oldest")}
+                          />
+                          Oldest
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="sortChoice"
+                            checked={sortChoice === "likes"}
+                            onChange={() => setSortChoice("likes")}
+                          />
+                          Most Likes
+                        </label>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="font-medium">Minimum Team Size</div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          value={minMembers}
+                          onChange={(e) =>
+                            setMinMembers(Number(e.target.value) || 0)
+                          }
+                          className="w-20 rounded border bg-background px-2 py-1"
+                        />
+                        <span className="text-muted-foreground">members</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -93,9 +176,9 @@ export default function DiscoveryPage() {
             </Badge>
           ))}
           <Badge
-            variant={sortByLikes ? "default" : "outline"}
+            variant="outline"
             className="cursor-pointer"
-            onClick={() => setSortByLikes((v) => !v)}>
+            onClick={() => setSortChoice("likes")}>
             Sort by Likes
           </Badge>
         </div>

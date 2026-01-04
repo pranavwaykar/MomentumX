@@ -25,7 +25,7 @@ export default function ProblemDetailPage() {
   const { user } = useAuth();
   const { show } = useToast();
   const { addJoinRequest, problems, init } = useProblemsStore();
-  const { photoUrl, name, init: initProfile } = useProfileStore();
+  const { photoUrl, name, location, init: initProfile } = useProfileStore();
 
   useEffect(() => {
     init();
@@ -149,6 +149,28 @@ export default function ProblemDetailPage() {
         </CardContent>
       </Card>
 
+      {location && user?.email && problem.author.email === user.email && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Location</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video w-full overflow-hidden rounded-lg border">
+              <iframe
+                title="location-map"
+                className="h-full w-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(
+                  location
+                )}&output=embed`}
+              />
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">{location}</p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex items-center gap-3">
         {user?.email &&
         (problem.author.email === user.email ||
@@ -158,6 +180,20 @@ export default function ProblemDetailPage() {
           </Button>
         ) : (
           <Button onClick={handleJoin}>Request to Join</Button>
+        )}
+        {problem.author.email && (
+          <Button variant="outline" asChild>
+            <a
+              href={`mailto:${
+                problem.author.email
+              }?subject=${encodeURIComponent(
+                `Interest in ${problem.title}`
+              )}&body=${encodeURIComponent(
+                "Hi, I'd like to join your project. Let me know the next steps."
+              )}`}>
+              Email Team Lead
+            </a>
+          </Button>
         )}
         <Button variant="outline" asChild>
           <Link href={`/teams/${problem.id}`}>View Team</Link>

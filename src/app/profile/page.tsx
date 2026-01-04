@@ -15,12 +15,23 @@ import { useAuth } from "@/components/auth-provider";
 import { Avatar } from "@/components/atoms/avatar";
 
 export default function ProfilePage() {
-  const { photoUrl, setPhotoUrl, init, name, email, headline, setProfile } =
-    useProfileStore();
+  const {
+    photoUrl,
+    setPhotoUrl,
+    init,
+    name,
+    email,
+    headline,
+    phone,
+    location,
+    setProfile,
+  } = useProfileStore();
   const [preview, setPreview] = useState<string | undefined>(photoUrl);
   const [localName, setLocalName] = useState(name || "");
   const [localEmail, setLocalEmail] = useState(email || "");
   const [localHeadline, setLocalHeadline] = useState(headline || "");
+  const [localPhone, setLocalPhone] = useState(phone || "");
+  const [localLocation, setLocalLocation] = useState(location || "");
   const { show } = useToast();
   const { user } = useAuth();
 
@@ -67,6 +78,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-sm text-muted-foreground">Name</label>
               <Input
+                required
                 value={localName}
                 onChange={(e) => setLocalName(e.target.value)}
               />
@@ -74,6 +86,7 @@ export default function ProfilePage() {
             <div>
               <label className="text-sm text-muted-foreground">Email</label>
               <Input
+                required
                 value={localEmail}
                 onChange={(e) => setLocalEmail(e.target.value)}
               />
@@ -86,16 +99,38 @@ export default function ProfilePage() {
                 onChange={(e) => setLocalHeadline(e.target.value)}
               />
             </div>
+            <div>
+              <label className="text-sm text-muted-foreground">Phone</label>
+              <Input
+                placeholder="+1 555-123-4567"
+                value={localPhone}
+                onChange={(e) => setLocalPhone(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground">Location</label>
+              <Input
+                placeholder="City, Country"
+                value={localLocation}
+                onChange={(e) => setLocalLocation(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="flex gap-2">
             <Button
               onClick={() => {
+                if (!localName || !localEmail) {
+                  show("Name and Email are required.", "error");
+                  return;
+                }
                 setPhotoUrl(preview);
                 setProfile({
                   name: localName,
                   email: localEmail,
                   headline: localHeadline,
+                  phone: localPhone,
+                  location: localLocation,
                 });
                 show("Profile updated.", "success");
               }}>

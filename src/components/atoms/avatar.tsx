@@ -11,14 +11,14 @@ function initials(name: string) {
 
 function colorFromString(s: string) {
   const colors = [
-    "bg-blue-600",
-    "bg-green-600",
-    "bg-amber-600",
-    "bg-purple-600",
-    "bg-pink-600",
-    "bg-teal-600",
-    "bg-red-600",
-    "bg-cyan-600",
+    "bg-blue-300",
+    "bg-green-300",
+    "bg-amber-300",
+    "bg-purple-300",
+    "bg-pink-300",
+    "bg-teal-300",
+    "bg-red-300",
+    "bg-cyan-300",
   ];
   let hash = 0;
   for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) | 0;
@@ -66,7 +66,7 @@ export function Avatar({
   const bg = colorFromString(name);
   return (
     <div
-      className={`rounded-full ${bg} text-white flex items-center justify-center text-xs ${
+      className={`rounded-full ${bg} text-foreground flex items-center justify-center text-xs ${
         className || ""
       }`}
       style={{ width: size, height: size }}>
