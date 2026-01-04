@@ -84,7 +84,6 @@ export default function DiscoveryPage() {
               </Button>
               {filterOpen && (
                 <div className="absolute right-0 z-40 mt-2 w-64 rounded-md border bg-background p-3 shadow-md">
-
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold">Filters</span>
                     <button
@@ -141,6 +140,19 @@ export default function DiscoveryPage() {
                         <span className="text-muted-foreground">members</span>
                       </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs text-muted-foreground hover:text-foreground"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedDomain(null);
+                        setSelectedStage(null);
+                        setSortChoice("newest");
+                        setMinMembers(0);
+                      }}>
+                      Reset Filters
+                    </Button>
                   </div>
                 </div>
               )}

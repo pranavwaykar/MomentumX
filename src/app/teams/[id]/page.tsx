@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useEffect, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
@@ -11,16 +11,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/molecules/card";
-import { MOCK_PROBLEMS } from "@/lib/mock-data";
+import { useProblemsStore } from "@/store/problems-store";
 import { useToast } from "@/components/toast-provider";
 
 export default function TeamDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { show } = useToast();
+  const { problems, init, addJoinRequest } = useProblemsStore();
+
+  useEffect(() => {
+    init();
+  }, [init]);
 
   const problem = useMemo(
-    () => MOCK_PROBLEMS.find((p) => p.id === String(params.id)),
-    [params.id]
+    () => problems.find((p) => p.id === String(params.id)),
+    [params.id, problems]
   );
 
   if (!problem) {
@@ -51,6 +57,15 @@ export default function TeamDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 space-y-8">
+      <div className="flex items-center">
+        <Button
+          className="text-base cursor-pointer"
+          variant="ghost"
+          size="sm"
+          onClick={() => router.back()}>
+          ← Back
+        </Button>
+      </div>
       <div className="flex items-start justify-between gap-4">
         <div>
           <Badge variant="outline" className="mb-2">

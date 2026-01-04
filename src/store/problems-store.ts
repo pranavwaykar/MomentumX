@@ -13,9 +13,29 @@ export interface JoinRequest {
   createdAt: string;
 }
 
+export type NotificationType =
+  | "like"
+  | "join_request"
+  | "new_proposal"
+  | "request_accepted"
+  | "request_rejected";
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  targetId?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 interface ProblemsState {
   problems: Problem[];
   joinRequests: JoinRequest[];
+  likedProblemIds: string[];
+  notifications: Notification[];
+  initialized: boolean;
   init: () => void;
   addProblem: (
     p: Omit<Problem, "id" | "likes" | "stage" | "createdAt">
@@ -28,17 +48,35 @@ interface ProblemsState {
   acceptRequest: (requestId: string) => void;
   rejectRequest: (requestId: string) => void;
   pendingCountForProblem: (problemId: string) => number;
+  toggleLike: (problemId: string) => void;
+  addNotification: (
+    n: Omit<Notification, "id" | "isRead" | "createdAt">
+  ) => void;
+  markNotificationAsRead: (id: string) => void;
+  clearNotifications: () => void;
 }
 
 const STORAGE_KEY = "momentumx_state_v1";
 
-function save(state: Pick<ProblemsState, "problems" | "joinRequests">) {
+function save(state: {
+  problems: Problem[];
+  joinRequests: JoinRequest[];
+  likedProblemIds: string[];
+  notifications: Notification[];
+}) {
+  if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {}
 }
 
-function load(): { problems: Problem[]; joinRequests: JoinRequest[] } | null {
+function load(): {
+  problems: Problem[];
+  joinRequests: JoinRequest[];
+  likedProblemIds?: string[];
+  notifications?: Notification[];
+} | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
@@ -49,10 +87,14 @@ function load(): { problems: Problem[]; joinRequests: JoinRequest[] } | null {
 }
 
 export const useProblemsStore = create<ProblemsState>((set, get) => ({
-  problems: [],
+  problems: MOCK_PROBLEMS.slice(),
   joinRequests: [],
+  likedProblemIds: [],
+  notifications: [],
+  initialized: false,
   init: () => {
-    const existing = typeof window !== "undefined" ? load() : null;
+    if (get().initialized) return;
+    const existing = load();
     if (existing) {
       // one-time avatar migration for Bob/Diana if old pravatar URLs are present
       const migratedProblems = existing.problems.map((p) => {
@@ -82,11 +124,27 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
         }
         return p;
       });
-      set({ problems: migratedProblems, joinRequests: existing.joinRequests });
-      save({ problems: migratedProblems, joinRequests: existing.joinRequests });
+      set({
+        problems: migratedProblems,
+        joinRequests: existing.joinRequests,
+        likedProblemIds: existing.likedProblemIds || [],
+        notifications: existing.notifications || [],
+        initialized: true,
+      });
     } else {
-      set({ problems: MOCK_PROBLEMS.slice(), joinRequests: [] });
-      save({ problems: MOCK_PROBLEMS.slice(), joinRequests: [] });
+      set({
+        problems: MOCK_PROBLEMS.slice(),
+        joinRequests: [],
+        likedProblemIds: [],
+        notifications: [],
+        initialized: true,
+      });
+      save({
+        problems: MOCK_PROBLEMS.slice(),
+        joinRequests: [],
+        likedProblemIds: [],
+        notifications: [],
+      });
     }
   },
   addProblem: (p) => {
@@ -100,7 +158,18 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
     };
     const nextProblems = [problem, ...get().problems];
     set({ problems: nextProblems });
-    save({ problems: nextProblems, joinRequests: get().joinRequests });
+    get().addNotification({
+      type: "new_proposal",
+      title: "New Proposal",
+      message: `${problem.author.name} just proposed a new problem: ${problem.title}`,
+      targetId: id,
+    });
+    save({
+      problems: nextProblems,
+      joinRequests: get().joinRequests,
+      likedProblemIds: get().likedProblemIds,
+      notifications: get().notifications,
+    });
     return problem;
   },
   addJoinRequest: (problemId, user, role) => {
@@ -114,7 +183,23 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
     };
     const nextReqs = [req, ...get().joinRequests];
     set({ joinRequests: nextReqs });
-    save({ problems: get().problems, joinRequests: nextReqs });
+    const problem = get().problems.find((p) => p.id === problemId);
+    if (problem) {
+      get().addNotification({
+        type: "join_request",
+        title: "New Join Request",
+        message: `${user.name} wants to join your team for: ${problem.title}${
+          role ? ` as ${role}` : ""
+        }`,
+        targetId: problemId,
+      });
+    }
+    save({
+      problems: get().problems,
+      joinRequests: nextReqs,
+      likedProblemIds: get().likedProblemIds,
+      notifications: get().notifications,
+    });
     return req;
   },
   acceptRequest: (requestId) => {
@@ -123,7 +208,6 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
     const nextReqs: JoinRequest[] = get().joinRequests.map((r) =>
       r.id === requestId ? { ...r, status: "accepted" } : r
     );
-    // Increment filled count for the first open role or matching role
     const problems = get().problems.map((p) => {
       if (p.id !== req.problemId) return p;
       const roles = p.requiredRoles.map((role) => {
@@ -136,17 +220,124 @@ export const useProblemsStore = create<ProblemsState>((set, get) => ({
       return { ...p, requiredRoles: roles };
     });
     set({ problems, joinRequests: nextReqs });
-    save({ problems, joinRequests: nextReqs });
+    const problem = get().problems.find((p) => p.id === req.problemId);
+    get().addNotification({
+      type: "request_accepted",
+      title: "Request Accepted",
+      message: `Your request to join "${
+        problem?.title || "a team"
+      }" has been accepted!`,
+      targetId: req.problemId,
+    });
+    save({
+      problems,
+      joinRequests: nextReqs,
+      likedProblemIds: get().likedProblemIds,
+      notifications: get().notifications,
+    });
   },
   rejectRequest: (requestId) => {
+    const req = get().joinRequests.find((r) => r.id === requestId);
     const nextReqs: JoinRequest[] = get().joinRequests.map((r) =>
       r.id === requestId ? { ...r, status: "rejected" } : r
     );
     set({ joinRequests: nextReqs });
-    save({ problems: get().problems, joinRequests: nextReqs });
+    if (req) {
+      const problem = get().problems.find((p) => p.id === req.problemId);
+      get().addNotification({
+        type: "request_rejected",
+        title: "Request Rejected",
+        message: `Your request to join "${
+          problem?.title || "a team"
+        }" was not accepted at this time.`,
+        targetId: req.problemId,
+      });
+    }
+    save({
+      problems: get().problems,
+      joinRequests: nextReqs,
+      likedProblemIds: get().likedProblemIds,
+      notifications: get().notifications,
+    });
   },
   pendingCountForProblem: (problemId) =>
     get().joinRequests.filter(
       (r) => r.problemId === problemId && r.status === "pending"
     ).length,
+  toggleLike: (problemId) => {
+    const { likedProblemIds, problems } = get();
+    const isCurrentlyLiked = likedProblemIds.includes(problemId);
+
+    const nextLikedIds = isCurrentlyLiked
+      ? likedProblemIds.filter((id) => id !== problemId)
+      : [...likedProblemIds, problemId];
+
+    const nextProblems = problems.map((p) => {
+      if (p.id === problemId) {
+        return {
+          ...p,
+          likes: isCurrentlyLiked ? Math.max(0, p.likes - 1) : p.likes + 1,
+        };
+      }
+      return p;
+    });
+
+    set({ likedProblemIds: nextLikedIds, problems: nextProblems });
+
+    if (!isCurrentlyLiked) {
+      const problem = problems.find((p) => p.id === problemId);
+      if (problem) {
+        get().addNotification({
+          type: "like",
+          title: "New Like",
+          message: `Someone liked your proposal: ${problem.title}`,
+          targetId: problemId,
+        });
+      }
+    }
+
+    save({
+      problems: nextProblems,
+      joinRequests: get().joinRequests,
+      likedProblemIds: nextLikedIds,
+      notifications: get().notifications,
+    });
+  },
+  addNotification: (n) => {
+    const notification: Notification = {
+      ...n,
+      id: crypto.randomUUID(),
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    const nextNotifications = [notification, ...get().notifications];
+    set({ notifications: nextNotifications });
+    save({
+      problems: get().problems,
+      joinRequests: get().joinRequests,
+      likedProblemIds: get().likedProblemIds,
+      notifications: nextNotifications,
+    });
+  },
+  markNotificationAsRead: (id) => {
+    const nextNotifications = get().notifications.map((n) =>
+      n.id === id ? { ...n, isRead: true } : n
+    );
+    set({ notifications: nextNotifications });
+    save({
+      problems: get().problems,
+      joinRequests: get().joinRequests,
+      likedProblemIds: get().likedProblemIds,
+      notifications: nextNotifications,
+    });
+  },
+  clearNotifications: () => {
+    set({ notifications: [] });
+    save({
+      problems: get().problems,
+      joinRequests: get().joinRequests,
+      likedProblemIds: get().likedProblemIds,
+      notifications: [],
+    });
+  },
 }));

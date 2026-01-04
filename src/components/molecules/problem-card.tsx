@@ -23,7 +23,10 @@ interface ProblemCardProps {
 
 export function ProblemCard({ problem }: ProblemCardProps) {
   const { user } = useAuth();
-  const { pendingCountForProblem } = useProblemsStore();
+  const { pendingCountForProblem, toggleLike } = useProblemsStore();
+  const liked = useProblemsStore((state) =>
+    state.likedProblemIds.includes(problem.id)
+  );
   const { photoUrl, name } = useProfileStore();
   const pending = pendingCountForProblem(problem.id);
   const totalRoles = problem.requiredRoles.reduce((acc, r) => acc + r.count, 0);
@@ -126,9 +129,18 @@ export function ProblemCard({ problem }: ProblemCardProps) {
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground">
-              <Heart className="h-4 w-4" />
+              size="sm"
+              className={`flex h-8 items-center gap-1.5 px-2 transition-colors ${
+                liked
+                  ? "text-red-500 hover:text-red-600"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={(e) => {
+                e.preventDefault();
+                toggleLike(problem.id);
+              }}>
+              <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
+              <span className="text-xs font-medium">{problem.likes}</span>
               <span className="sr-only">Like</span>
             </Button>
             <Button size="sm" asChild>

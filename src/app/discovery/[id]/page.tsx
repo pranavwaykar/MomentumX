@@ -24,7 +24,12 @@ export default function ProblemDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { show } = useToast();
-  const { addJoinRequest, problems, init } = useProblemsStore();
+  const { addJoinRequest, init, toggleLike } = useProblemsStore();
+  const problems = useProblemsStore((state) => state.problems);
+  const initialized = useProblemsStore((state) => state.initialized);
+  const liked = useProblemsStore((state) =>
+    state.likedProblemIds.includes(String(params.id))
+  );
   const { photoUrl, name, location, init: initProfile } = useProfileStore();
 
   useEffect(() => {
@@ -38,6 +43,13 @@ export default function ProblemDetailPage() {
   );
 
   if (!problem) {
+    if (!initialized) {
+      return (
+        <div className="container mx-auto px-4 py-12 flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      );
+    }
     return (
       <div className="container mx-auto px-4 py-12">
         <h1 className="text-2xl font-bold">Problem not found</h1>
@@ -132,9 +144,14 @@ export default function ProblemDetailPage() {
               <CalendarDays className="h-4 w-4" />{" "}
               {formatDate(problem.createdAt)}
             </span>
-            <span className="flex items-center gap-1">
-              <Heart className="h-4 w-4" /> {problem.likes}
-            </span>
+            <button
+              onClick={() => toggleLike(problem.id)}
+              className={`flex items-center gap-1 transition-colors hover:text-red-500 ${
+                liked ? "text-red-500" : ""
+              }`}>
+              <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />{" "}
+              {problem.likes}
+            </button>
           </div>
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -209,8 +226,15 @@ export default function ProblemDetailPage() {
         <Button variant="outline" asChild>
           <Link href={`/teams/${problem.id}`}>View Team</Link>
         </Button>
-        <Button variant="ghost" size="icon" title="Like">
-          <Heart className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          title={liked ? "Unlike" : "Like"}
+          className={`transition-colors ${
+            liked ? "text-red-500 hover:text-red-600" : ""
+          }`}
+          onClick={() => toggleLike(problem.id)}>
+          <Heart className={`h-5 w-5 ${liked ? "fill-current" : ""}`} />
         </Button>
       </div>
     </div>

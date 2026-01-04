@@ -11,32 +11,40 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/molecules/card";
-import { MOCK_PROBLEMS } from "@/lib/mock-data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useProblemsStore } from "@/store/problems-store";
 
 export default function TeamsPage() {
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
+  const { problems, init } = useProblemsStore();
 
-  const teams = MOCK_PROBLEMS.map((p) => {
-    const total = p.requiredRoles.reduce((a, r) => a + r.count, 0);
-    const filled = p.requiredRoles.reduce((a, r) => a + r.filled, 0);
-    const openRoles = p.requiredRoles.filter((r) => r.count - r.filled > 0);
-    return {
-      id: p.id,
-      name: p.title,
-      domain: p.domain,
-      stage: p.stage,
-      lead: p.author.name,
-      teamSize: filled,
-      totalNeeded: total,
-      openRoles,
-      tagline: p.tagline,
-    };
-  })
+  useEffect(() => {
+    init();
+  }, [init]);
+
+  const teams = problems
+    .map((p) => {
+      const total = p.requiredRoles.reduce((a, r) => a + r.count, 0);
+      const filled = p.requiredRoles.reduce((a, r) => a + r.filled, 0);
+      const openRoles = p.requiredRoles.filter((r) => r.count - r.filled > 0);
+      return {
+        id: p.id,
+        name: p.title,
+        domain: p.domain,
+        stage: p.stage,
+        lead: p.author.name,
+        teamSize: filled,
+        totalNeeded: total,
+        openRoles,
+        tagline: p.tagline,
+      };
+    })
     .filter((t) => t.teamSize > 0)
     .filter((t) => (selectedDomain ? t.domain === selectedDomain : true))
     .filter((t) => (selectedStage ? t.stage === selectedStage : true));
+
+  const domains = Array.from(new Set(problems.map((p) => p.domain)));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -54,7 +62,7 @@ export default function TeamsPage() {
           onClick={() => setSelectedDomain(null)}>
           All Domains
         </Badge>
-        {Array.from(new Set(MOCK_PROBLEMS.map((p) => p.domain))).map((d) => (
+        {domains.map((d) => (
           <Badge
             key={d}
             variant={selectedDomain === d ? "default" : "outline"}
