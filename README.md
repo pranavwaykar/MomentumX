@@ -16,7 +16,7 @@ MomentumX is a problem-first platform designed to bridge the gap between "I have
 - **🎯 Problem-First Discovery**: Browse real-world challenges filtered by domain and stage.
 - **🏗️ Structured Proposals**: A guided multi-step stepper to define vision, roles, and milestones.
 - **🤝 Intelligent Team Formation**: View open roles, request to join, and manage team members.
-- **📈 Visual Progress**: Track lifecycle stages from _Idea_ to _MVP_ with intuitive progress indicators.
+- **📈 Visual Progress**: Track lifecycle stages from *Idea* to *MVP* with intuitive progress indicators.
 - **🌓 Adaptive Design System**: Fully responsive dark/light mode with a custom-built component library.
 - **🔐 Secure Auth**: Seamless Firebase integration supporting Google and Email/Password sign-in.
 
@@ -36,7 +36,6 @@ MomentumX is a problem-first platform designed to bridge the gap between "I have
 ## 🚀 Getting Started
 
 ### 1. Clone & Install
-
 ```bash
 git clone https://github.com/your-username/momentumx.git
 cd momentumx
@@ -44,9 +43,7 @@ npm install
 ```
 
 ### 2. Environment Setup
-
 Create a `.env.local` file in the root directory:
-
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -55,11 +52,9 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 ### 3. Launch Development Server
-
 ```bash
 npm run dev
 ```
-
 Open [http://localhost:3000](http://localhost:3000) to see the result.
 
 ---
