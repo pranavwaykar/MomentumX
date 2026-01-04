@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 
 function initials(name: string) {
   const parts = name.split(" ").filter(Boolean);
@@ -36,7 +37,8 @@ export function Avatar({
   size?: number;
   className?: string;
 }) {
-  if (src) {
+  const [failed, setFailed] = useState(false);
+  if (src && !failed) {
     const isInline = src.startsWith("blob:") || src.startsWith("data:");
     if (isInline) {
       return (
@@ -46,6 +48,7 @@ export function Avatar({
           width={size}
           height={size}
           className={`rounded-full ${className || ""}`}
+          onError={() => setFailed(true)}
         />
       );
     }
@@ -56,6 +59,7 @@ export function Avatar({
         width={size}
         height={size}
         className={`rounded-full ${className || ""}`}
+        onError={() => setFailed(true)}
       />
     );
   }
