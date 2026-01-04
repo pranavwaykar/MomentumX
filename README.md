@@ -1,70 +1,98 @@
-# MomentumX
+# 🚀 MomentumX
 
-MomentumX is a problem-first collaboration platform. It helps entrepreneurs, developers, designers, and product thinkers move from ideas to execution by enforcing structure: problems are proposed, teams are formed with defined roles, and progress is tracked until MVP.
+**Move from ideas to execution with structured collaboration.**
 
-## Features
-- Idea Proposal: Guided multi-step form with validations and preview
-- Discovery: Card-based problem browsing with domain filters
-- Team Formation: Join teams, see open roles, and view team details
-- Progress & Lifecycle: Visual team progress indicators and stages
-- Theming & Design System: Dark/light mode, reusable components, Tailwind-based styles
-- Authentication: Firebase email/password and Google sign-in (frontend-only)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://momentumx-live.netlify.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC.svg)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Tech Stack
-- Next.js 16 App Router
-- React 19
-- Tailwind (via @tailwindcss/postcss) and SCSS utilities
-- Zustand for local state
-- Firebase Authentication (client-side)
+MomentumX is a problem-first platform designed to bridge the gap between "I have an idea" and "We have an MVP." By enforcing structure from the very first proposal, it helps entrepreneurs, developers, and designers find the right collaborators and build with intention.
 
-## Getting Started
-1. Install dependencies
+---
+
+## 🌟 Key Features
+
+- **🎯 Problem-First Discovery**: Browse real-world challenges filtered by domain and stage.
+- **🏗️ Structured Proposals**: A guided multi-step stepper to define vision, roles, and milestones.
+- **🤝 Intelligent Team Formation**: View open roles, request to join, and manage team members.
+- **📈 Visual Progress**: Track lifecycle stages from _Idea_ to _MVP_ with intuitive progress indicators.
+- **🌓 Adaptive Design System**: Fully responsive dark/light mode with a custom-built component library.
+- **🔐 Secure Auth**: Seamless Firebase integration supporting Google and Email/Password sign-in.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 15 (App Router)](https://nextjs.org/)
+- **Styling**: [Tailwind CSS 4.0](https://tailwindcss.com/) & [SCSS](https://sass-lang.com/)
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/) (with persistent storage)
+- **Authentication**: [Firebase Auth](https://firebase.google.com/products/auth)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Components**: Custom Atomic Design System (Atoms, Molecules, Organisms)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone & Install
 
 ```bash
+git clone https://github.com/your-username/momentumx.git
+cd momentumx
 npm install
 ```
 
-2. Configure environment variables
+### 2. Environment Setup
 
-Create a `.env` file:
-```
-NEXT_PUBLIC_FIREBASE_API_KEY="..."
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
-NEXT_PUBLIC_FIREBASE_APP_ID="..."
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
-3. Run the dev server
+### 3. Launch Development Server
 
 ```bash
 npm run dev
 ```
 
-Visit http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000) to see the result.
 
-## Key Pages
-- `/` Home
-- `/discovery` Problem discovery
-- `/problems/new` Idea proposal (stepper)
-- `/teams` Teams list (derived from problems with members)
-- `/teams/[id]` Team detailed view
-- `/auth/sign-in` Sign in (email/password + Google)
-- `/auth/sign-up` Sign up (email/password)
+---
 
-## Structure Highlights
-- App layout: `src/app/layout.tsx` (Theme + Auth providers)
-- Navbar: `src/components/organisms/navbar.tsx`
-- Problem form: `src/components/organisms/problem-form/*`
-- Discovery: `src/app/discovery/page.tsx`
-- Teams: `src/app/teams/page.tsx` and `src/app/teams/[id]/page.tsx`
-- Auth: `src/app/auth/sign-in/page.tsx`, `src/app/auth/sign-up/page.tsx`
-- Firebase setup: `src/lib/firebase.ts`
+## 📂 Project Structure
 
-## Notes
-- This is a frontend-only demo. Firebase Auth is used purely on the client.
-- Mock problem data lives in `src/lib/mock-data.ts`. Replace with an API when available.
-- The design system uses composable atoms and molecules. Button supports `asChild` to avoid invalid nesting with links.
+```text
+src/
+├── app/             # Next.js App Router (Pages & API)
+├── assets/          # Static assets (Images, Logos)
+├── components/      # Atomic Design System
+│   ├── atoms/       # Base components (Button, Badge, Input)
+│   ├── molecules/   # Compound components (Card, FormField)
+│   └── organisms/   # Complex sections (Navbar, Stepper)
+├── lib/             # Utilities, Firebase config, & Mock data
+├── store/           # Zustand stores for global state
+└── styles/          # Global styles & Tailwind configuration
+```
 
-## License
-MIT
+---
 
+## 🌐 Deployment
+
+The project is configured for seamless deployment on **Netlify** with automatic Next.js plugin support.
+
+**Live URL**: [https://momentumx-live.netlify.app/](https://momentumx-live.netlify.app/)
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+<p align="center">Built with ❤️ for the builder community.</p>
